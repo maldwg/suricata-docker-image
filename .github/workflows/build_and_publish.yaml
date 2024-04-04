@@ -32,8 +32,9 @@ jobs:
     - name: check latest version on Docker hub
       shell: bash
       run: |
+        USERNAME=${{ secrets.DOCKER_USERNAME }}
 
-        status_code_accessing_dockerhub=$(curl -o response.json -w "%{http_code}"  -s "https://registry.hub.docker.com/v2/repositories/${{ secrets.DOCKER_USERNAME }}/$IMAGE_NAME/tags")
+        status_code_accessing_dockerhub=$(curl -o response.json -w "%{http_code}"  -s "https://registry.hub.docker.com/v2/repositories/$USERNAME/$IMAGE_NAME/tags")
         tag_count_on_dockerhub=$(cat response.json | jq '.results | length')
       
         if [ "$status_code_accessing_dockerhub" -eq 404 ]; then
