@@ -2,10 +2,10 @@ name: Build and publish docker image
 on:
   workflow_call:
 env:
-  REPO_NAME=suricata
-  ORGANIZATION_NAME=OISF
-  IMAGE_NAME=suricata
-  USERNAME=${{secrets.DOCKER_USERNAME}}
+  REPO_NAME: suricata
+  ORGANIZATION_NAME: OISF
+  IMAGE_NAME: suricata
+  USERNAME: ${{secrets.DOCKER_USERNAME}}
 
 jobs:
   get_latest_version:
