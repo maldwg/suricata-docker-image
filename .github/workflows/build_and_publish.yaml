@@ -51,7 +51,6 @@ jobs:
                   break
                 fi
               done
-          fi
             if [ -z $LATEST_PUSHED_RELEASE ]; then
               echo "Found the registry repository, but could not find latest version in the tags"
             fi
