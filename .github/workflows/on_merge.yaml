@@ -5,4 +5,4 @@ on:
     branches: main
 jobs:
   build_and_publish:
-    uses: maldwg/suricata-docker-image/.github/worklfows/build_and_publish.yaml
+    uses: .github/worklfows/build_and_publish.yaml
