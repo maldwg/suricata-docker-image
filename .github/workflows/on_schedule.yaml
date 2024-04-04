@@ -1,0 +1,8 @@
+name: Scheduled build of the docker image
+on:
+  schedule:
+    - cron: "30 * * * *"
+  workflow_dispatch:
+jobs:
+  build_and_publish:
+    uses: maldwg/suricata-docker-image/.github/worklfows/build_and_publish.yaml

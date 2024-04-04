@@ -1,0 +1,100 @@
+name: Build and publish docker image
+on:
+  workflow_call:
+env:
+  REPO_NAME=suricata
+  ORGANIZATION_NAME=OISF
+  IMAGE_NAME=suricata
+  USERNAME=${{secrets.DOCKER_USERNAME}}
+
+jobs:
+  get_latest_version:
+    runs-on: ubuntu-latest
+    outputs:
+        RELEASE_VERSION: ${{ steps.sets_release_version.outputs.RELEASE_VERSION }}
+    steps:
+    - name: Retrieve suricata release versions
+      shell: bash
+      run: |
+        curl -o suricata_releases.json -s https://api.github.com/repos/$ORGANIZATION_NAME/$REPO_NAME/tags
+        release_counts=$(cat suricata_releases.json | jq '. | length')
+        for RELEASE_NR in $(seq 0 $(($release_counts - 1)))
+        do
+        RELEASE_VERSION=$(curl -s https://api.github.com/repos/$ORGANIZATION_NAME/$REPO_NAME/tags | jq -r .[$RELEASE_NR].name) 
+          if [ -z "${RELEASE_VERSION}" ] || [ "${RELEASE_VERSION}" == "null" ]; then
+            echo "Release $RELEASE_NR could not be retrieved, progressing ..."
+          else
+            echo "found latests release in Release Nr: $RELEASE_NR, with version $RELEASE_VERSION"
+            break
+          fi
+        done
+        echo "RELEASE_VERSION=$RELEASE_VERSION" >> $GITHUB_ENV
+
+    - name: check latest version on Docker hub
+      shell: bash
+      run: |
+
+        status_code_accessing_dockerhub=$(curl -o response.json -w "%{http_code}"  -s "https://registry.hub.docker.com/v2/repositories/$USERNAME/$IMAGENAME/tags")
+        tag_count_on_dockerhub=$(cat response.json | jq '.results | length')
+      
+        if [ "$status_code_accessing_dockerhub" -eq 404 ]; then
+            echo "Package not found."
+            LATEST_PUSHED_RELEASE=""
+        elif [ "$status_code_accessing_dockerhub" -eq 200 ]; then
+              for RELEASE_NR in $(seq 0 $(($tag_count_on_dockerhub - 1)))
+              do
+                LATEST_PUSHED_RELEASE=$(cat response.json | jq --argjson RELEASE_NR "$RELEASE_NR" -r '.results[$RELEASE_NR].name')
+                if [[ "$LATEST_PUSHED_RELEASE" == "latest" ]]; then
+                  echo "Found latest release with tag latest instead of version number, progressing ..."
+                else
+                  echo "Found latest release with version number ${LATEST_PUSHED_RELEASE}"
+                  break
+                fi
+              done
+          fi
+            if [ -z $LATEST_PUSHED_RELEASE ]; then
+              echo "Found the registry repository, but could not find latest version in the tags"
+            fi
+        else
+            echo "Unexpected HTTP status code: $status_code_accessing_dockerhub"
+            break
+        fi
+        echo "LATEST_PUSHED_RELEASE=$LATEST_PUSHED_RELEASE" >> $GITHUB_ENV
+
+    - name: comparing official version and latest release
+      id: sets_release_version
+      shell: bash
+      run: |
+        echo "Newest version: $RELEASE_VERSION"
+        echo "Latest version built: $LATEST_PUSHED_RELEASE"
+        if [ "$RELEASE_VERSION" == "$LATEST_PUSHED_RELEASE" ]; then
+          echo "Versions already built and pushed, aborting the pipeline."
+          exit 1
+        fi
+        echo "::set-output name=RELEASE_VERSION::$($RELEASE_VERSION)"
+
+  build_and_push:
+      runs-on: ubuntu-latest
+      needs: get_latest_version
+      steps:  
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: set variable name to human readbale 
+        run: echo "RELEASE_VERSION=${{ needs.get_latest_version.outputs.RELEASE_VERSION }}" >> GITHUB_ENV
+    
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./suricata
+          file: ./Dockerfile
+          push: true
+          tags: $DOCKER_USERNAME/$IMAGE_NAME:latest,$DOCKER_USERNAME/$IMAGE_NAME:$RELEASE_VERSION
+
+ 
