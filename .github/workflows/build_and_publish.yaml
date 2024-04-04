@@ -96,6 +96,6 @@ jobs:
           context: ./suricata
           file: ./Dockerfile
           push: true
-          tags: "${{ secrets.DOCKER_USERNAME }}/$IMAGE_NAME:latest,${{ secrets.DOCKER_USERNAME }}/$IMAGE_NAME:$RELEASE_VERSION"
+          tags: ${{ secrets.DOCKER_USERNAME }}/$IMAGE_NAME:latest,${{ secrets.DOCKER_USERNAME }}/$IMAGE_NAME:$RELEASE_VERSION
 
  
