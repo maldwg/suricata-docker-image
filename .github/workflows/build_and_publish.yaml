@@ -19,7 +19,8 @@ jobs:
         release_counts=$(cat suricata_releases.json | jq '. | length')
         for RELEASE_NR in $(seq 0 $(($release_counts - 1)))
         do
-        RELEASE_VERSION=$(curl -s https://api.github.com/repos/$ORGANIZATION_NAME/$REPO_NAME/tags | jq -r .[$RELEASE_NR].name) 
+        RELEASE_NAME=$(curl -s https://api.github.com/repos/$ORGANIZATION_NAME/$REPO_NAME/tags | jq -r .[$RELEASE_NR].name) 
+        RELEASE_VERSION=${RELEASE_NAME/suricata-}
           if [ -z "${RELEASE_VERSION}" ] || [ "${RELEASE_VERSION}" == "null" ]; then
             echo "Release $RELEASE_NR could not be retrieved, progressing ..."
           else
@@ -70,7 +71,7 @@ jobs:
           echo "Versions already built and pushed, aborting the pipeline."
           exit 1
         fi
-        echo "::set-output name=RELEASE_VERSION::$RELEASE_VERSION"
+        echo "echo RELEASE_VERSION=$RELEASE_VERSION" >> $GITHUB_OUTPUT
 
   build_and_push:
       runs-on: ubuntu-latest
