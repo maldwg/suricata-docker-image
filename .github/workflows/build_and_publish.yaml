@@ -32,7 +32,7 @@ jobs:
     - name: check latest version on Docker hub
       shell: bash
       run: |
-        USERNAME="${{secrets.DOCKER_USERNAME}}"
+        USERNAME=${{ secrets.DOCKER_USERNAME }}
 
         status_code_accessing_dockerhub=$(curl -o response.json -w "%{http_code}"  -s "https://registry.hub.docker.com/v2/repositories/$USERNAME/$IMAGE_NAME/tags")
         tag_count_on_dockerhub=$(cat response.json | jq '.results | length')
@@ -71,7 +71,7 @@ jobs:
           echo "Versions already built and pushed, aborting the pipeline."
           exit 1
         fi
-        echo "::set-output name=RELEASE_VERSION::$($RELEASE_VERSION)"
+        echo "::set-output name=RELEASE_VERSION::$RELEASE_VERSION"
 
   build_and_push:
       runs-on: ubuntu-latest
@@ -82,13 +82,13 @@ jobs:
 
       - name: set variable name to human readbale 
         run: |
-          echo "RELEASE_VERSION=${{ needs.get_latest_version.outputs.RELEASE_VERSION }}" >> GITHUB_ENV
+          echo "RELEASE_VERSION=${{ needs.get_latest_version.outputs.RELEASE_VERSION }}" >> $GITHUB_ENV
     
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: "${{secrets.DOCKER_USERNAME}}"
-          password: "${{secrets.DOCKER_ACCESS_TOKEN}}"
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -96,6 +96,6 @@ jobs:
           context: ./suricata
           file: ./Dockerfile
           push: true
-          tags: "${{secrets.DOCKER_USERNAME}}/$IMAGE_NAME:latest,${{secrets.DOCKER_USERNAME}}/$IMAGE_NAME:$RELEASE_VERSION"
+          tags: "${{ secrets.DOCKER_USERNAME }}/$IMAGE_NAME:latest,${{ secrets.DOCKER_USERNAME }}/$IMAGE_NAME:$RELEASE_VERSION"
 
  
