@@ -5,6 +5,7 @@ env:
   REPO_NAME: suricata
   ORGANIZATION_NAME: OISF
   IMAGE_NAME: suricata
+  DOCKER_USER: maxldwg
 
 jobs:
   get_latest_version:
@@ -33,9 +34,7 @@ jobs:
     - name: check latest version on Docker hub
       shell: bash       
       run: |
-        USERNAME=${{ secrets.DOCKER_USERNAME }}
-
-        status_code_accessing_dockerhub=$(curl -o response.json -w "%{http_code}"  -s "https://registry.hub.docker.com/v2/repositories/$USERNAME/$IMAGE_NAME/tags")
+        status_code_accessing_dockerhub=$(curl -o response.json -w "%{http_code}"  -s "https://registry.hub.docker.com/v2/repositories/$DOCKER_USER/$IMAGE_NAME/tags")
         tag_count_on_dockerhub=$(cat response.json | jq '.results | length')
       
         if [ "$status_code_accessing_dockerhub" -eq 404 ]; then
@@ -87,11 +86,11 @@ jobs:
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
+          username: "$DOCKER_USER"
           password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
 
       - name: create tags string
-        run: echo "TAGS=${{ secrets.DOCKER_USERNAME }}/$IMAGE_NAME:latest,${{ secrets.DOCKER_USERNAME }}/$IMAGE_NAME:$RELEASE_VERSION" >> $GITHUB_ENV
+        run: echo "TAGS=$DOCKER_USER/$IMAGE_NAME:latest,$DOCKER_USER/$IMAGE_NAME:$RELEASE_VERSION" >> $GITHUB_ENV
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
