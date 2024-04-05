@@ -72,10 +72,6 @@ jobs:
         fi
         echo "RELEASE_VERSION=$RELEASE_VERSION" >> "$GITHUB_OUTPUT"
 
- # TODO: output not correctly used, release version is emtpy hen set later...
- # TODO: tags are in wrong format ? mayybe bcs of this above, maybe not
- # TODO: dockerfile needs to be populated
-
   build_and_push:
       runs-on: ubuntu-latest
       needs: get_latest_version
@@ -105,5 +101,7 @@ jobs:
           file: ./suricata/Dockerfile
           push: true
           tags: ${{ env.TAGS }}
+          build-args: | 
+            SURICATA_VERSION=${{ env.RELEASE_VERSION }}
 
  
