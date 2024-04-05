@@ -70,7 +70,7 @@ jobs:
           echo "Versions already built and pushed, aborting the pipeline."
           exit 1
         fi
-        echo "echo RELEASE_VERSION=$RELEASE_VERSION" >> "$GITHUB_OUTPUT"
+        echo "RELEASE_VERSION=$RELEASE_VERSION" >> "$GITHUB_OUTPUT"
 
     - name: debug
       run: echo "value set = ${{ steps.sets_release_version.outputs.RELEASE_VERSION }}"
