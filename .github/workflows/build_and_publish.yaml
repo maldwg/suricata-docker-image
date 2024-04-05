@@ -72,6 +72,9 @@ jobs:
         fi
         echo "echo RELEASE_VERSION=$RELEASE_VERSION" >> "$GITHUB_OUTPUT"
 
+    - name: debug
+      run: echo "value set = ${{ steps.sets_release_version.outputs.RELEASE_VERSION }}"
+
  # TODO: output not correctly used, release version is emtpy hen set later...
  # TODO: tags are in wrong format ? mayybe bcs of this above, maybe not
  # TODO: dockerfile needs to be populated
