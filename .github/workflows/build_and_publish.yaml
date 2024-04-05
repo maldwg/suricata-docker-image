@@ -70,7 +70,11 @@ jobs:
           echo "Versions already built and pushed, aborting the pipeline."
           exit 1
         fi
-        echo "echo RELEASE_VERSION=$RELEASE_VERSION" >> $GITHUB_OUTPUT
+        echo "echo RELEASE_VERSION=$RELEASE_VERSION" >> "$GITHUB_OUTPUT"
+
+ # TODO: output not correctly used, release version is emtpy hen set later...
+ # TODO: tags are in wrong format ? mayybe bcs of this above, maybe not
+ # TODO: dockerfile needs to be populated
 
   build_and_push:
       runs-on: ubuntu-latest
@@ -81,8 +85,13 @@ jobs:
 
       - name: set variable name to human readbale 
         run: |
-          echo "RELEASE_VERSION=${{ needs.get_latest_version.outputs.RELEASE_VERSION }}" >> $GITHUB_ENV
-    
+          echo "RELEASE_VERSION=$VERSION" >> $GITHUB_ENV
+        env:
+          VERSION: ${{ needs.get_latest_version.outputs.RELEASE_VERSION }}
+
+      - name: debug
+        run: echo "$RELEASE_VERSION"
+
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
