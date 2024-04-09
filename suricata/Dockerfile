@@ -38,5 +38,6 @@ RUN cd /tmp/suricata && ./scripts/bundle.sh && ./autogen.sh && ./configure && ma
 
 # start
 # suricata-update
-# suricata -c /usr/local/etc/suricata/suricata.yaml  -i eth0
+# suricata -c /usr/local/etc/suricata/suricata.yaml -l /usr/local/var/log/suricata  -i eth0  | -r pathtofile
 # -s /usr/local/var/lib/suricata/rules/suricata.rules for additional ruels
+# logfiles: /usr/local/var/log/suricata/special.json
