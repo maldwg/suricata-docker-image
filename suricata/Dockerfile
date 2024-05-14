@@ -1,7 +1,8 @@
 FROM ubuntu:latest As base
 
 RUN apt update -y && apt upgrade -y
-RUN apt-get -y install vim
+RUN apt-get -y install vim python3-pip
+RUN rm /usr/lib/python3.12/EXTERNALLY-MANAGED 
 
 # From suricata documentation
 RUN apt-get install -y libcap2-bin build-essential git libjansson-dev libpcap-dev \
