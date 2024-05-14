@@ -1,6 +1,7 @@
 # suricata-docker-image
 
-Repository to periodically check for new releases of suricata and then build and publish them on dockerhub
+Project to package suricata into a ubuntu based docker image.
+The installation is conducted as stated by the official documentation.
 
 ## Usage
 
