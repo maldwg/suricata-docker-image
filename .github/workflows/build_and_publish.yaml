@@ -67,8 +67,12 @@ jobs:
         echo "Newest version: $RELEASE_VERSION"
         echo "Latest version built: $LATEST_PUSHED_RELEASE"
         if [ "$RELEASE_VERSION" == "$LATEST_PUSHED_RELEASE" ]; then
-          echo "Versions already built and pushed, aborting the pipeline."
-          exit 1
+          echo "base ref: ${{ github.base_ref }}"
+          # not a  manual merge 
+          if [ ${{ github.base_ref }} != "*main*" ]; then 
+            echo "Not a manual merge and version already built and pushed, aborting the pipeline."
+            exit 1
+          fi
         fi
         echo "RELEASE_VERSION=$RELEASE_VERSION" >> "$GITHUB_OUTPUT"
 
@@ -104,4 +108,9 @@ jobs:
           build-args: | 
             SURICATA_VERSION=${{ env.RELEASE_VERSION }}
 
- 
+      - name: Update repo description
+        uses: peter-evans/dockerhub-description@v3
+        with:
+          username: ${{ env.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
+          repository: ${{ env.DOCKER_USER }}/${{ env.IMAGE_NAME}}

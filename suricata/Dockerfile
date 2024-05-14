@@ -4,7 +4,7 @@ RUN apt update -y && apt upgrade -y
 RUN apt-get -y install vim
 
 # From suricata documentation
-RUN apt-get install -y build-essential git libjansson-dev libpcap-dev \
+RUN apt-get install -y libcap2-bin build-essential git libjansson-dev libpcap-dev \
                 libpcre2-dev libtool libyaml-dev make pkg-config zlib1g-dev 
 RUN apt-get install -y autoconf automake build-essential ccache clang curl git \
                 gosu jq libbpf-dev libcap-ng0 libcap-ng-dev libelf-dev \
@@ -25,19 +25,13 @@ FROM base As suricata
 # use build arg here instead of base (multi stage dockerfile)
 ARG SURICATA_VERSION
 
+# fetch suricata binaries
 RUN curl -fL -o /tmp/suricata.tar.gz "https://github.com/OISF/suricata/archive/refs/tags/suricata-${SURICATA_VERSION}.tar.gz"
 RUN mkdir /tmp/suricata && tar xzvf /tmp/suricata.tar.gz -C /tmp/suricata --strip-components 1
 RUN cd /tmp/suricata && ./scripts/bundle.sh && ./autogen.sh && ./configure && make -j8 && make install-full
 
-# RUN adduser -D suricata
-# RUN chmod -R 755 /tmp/suricata && chown -R suricata:suricata /tmp/suricata 
 # USER suricata
-# WORKDIR /usr/local/bin
+WORKDIR /usr/local/bin
 
+CMD ["tail", "-f", "/dev/null"]
 
-
-# start
-# suricata-update
-# suricata -c /usr/local/etc/suricata/suricata.yaml -l /usr/local/var/log/suricata  -i eth0  | -r pathtofile
-# -s /usr/local/var/lib/suricata/rules/suricata.rules for additional ruels
-# logfiles: /usr/local/var/log/suricata/special.json
