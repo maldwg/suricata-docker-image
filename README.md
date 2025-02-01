@@ -6,6 +6,7 @@
 
 
 # suricata-docker-image
+![Docker Image Version](https://img.shields.io/docker/v/maxldwg/suricata?label=Latest%20version%20build)
 
 Project to package suricata into a ubuntu based docker image.
 The installation is conducted as stated by the official documentation.
