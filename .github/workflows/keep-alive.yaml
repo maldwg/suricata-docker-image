@@ -1,0 +1,22 @@
+name: Keep Alive Scheduled Builds
+on:
+  schedule:
+    - cron: '0 0 1 * *'  # Runs on the 1st of every month
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Update timestamp
+        run: date +%s > keepalive.txt
+        
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add keepalive.txt
+          git commit -m "Auto-Commit: Keep repository and pipelines active"
+          git push
