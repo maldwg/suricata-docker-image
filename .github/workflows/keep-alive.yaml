@@ -2,6 +2,7 @@ name: Keep Alive Scheduled Builds
 on:
   schedule:
     - cron: '0 0 1 * *'  # Runs on the 1st of every month
+  workflow_dispatch:
 
 jobs:
   keep-alive:
