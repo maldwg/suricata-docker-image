@@ -1,7 +1,7 @@
 name: Keep Alive Scheduled Builds
 on:
   schedule:
-    - cron: '0 0 1 * *'  # Runs on the 1st of every month
+    - cron: '0 0 1 * *' 
   workflow_dispatch:
 
 jobs:
@@ -20,6 +20,7 @@ jobs:
           git config --global user.email "github-actions@github.com"
           git add keepalive.txt
           git commit -m "Auto-Commit: Keep repository and pipelines active"
+
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
