@@ -1,4 +1,4 @@
-FROM ubuntu:latest As base
+FROM ubuntu:latest AS base
 
 RUN apt update -y && apt upgrade -y
 RUN apt-get -y install vim python3-pip
@@ -22,7 +22,7 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | bash -s -- -y
 RUN /bin/bash -c "source $HOME/.cargo/env" 
 RUN apt install -y cargo cbindgen
 
-FROM base As suricata
+FROM base AS suricata
 # use build arg here instead of base (multi stage dockerfile)
 ARG SURICATA_VERSION
 
@@ -36,6 +36,11 @@ WORKDIR /usr/local/bin
 
 #Test if suricata works
 RUN suricata -V || (echo "Suricata was not installed successfully! Check correctness of dependencies!" && exit 1)
+
+
+FROM suricata AS final
+
+WORKDIR /usr/local/bin
 
 CMD ["tail", "-f", "/dev/null"]
 
